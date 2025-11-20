@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:layout_marginBottom="16dp"
+    android:background="?android:attr/selectableItemBackground"
+    android:clickable="true"
+    android:focusable="true"
+    android:elevation="2dp"
+    android:layout_marginTop="8dp"
+    android:layout_marginLeft="8dp"
+    android:layout_marginRight="8dp"
+    android:layout_gravity="center_horizontal"
+    android:clipToPadding="false">
+
+    <!-- Nom et adresse du conseiller -->
+    <TextView
+        android:id="@+id/advisorName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Nom du conseiller"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:layout_marginBottom="8dp"/>
+
+    <TextView
+        android:id="@+id/advisorAddress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Adresse du conseiller"
+        android:textSize="14sp"
+        android:textColor="#4A4A4A"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Texte supplémentaire sur la spécialisation du conseiller -->
+    <TextView
+        android:id="@+id/advisorSpecialization"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Spécialité : Consultation en ligne"
+        android:textSize="12sp"
+        android:textColor="#707070"
+        android:layout_marginBottom="12dp"/>
+
+    <!-- Liste des créneaux disponibles -->
+    <LinearLayout
+        android:id="@+id/slotsContainer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_marginTop="12dp">
+        <!-- Dynamically populated slot buttons will go here -->
+    </LinearLayout>
+
+</LinearLayout>
