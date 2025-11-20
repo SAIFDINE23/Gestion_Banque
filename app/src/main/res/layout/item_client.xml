@@ -2,24 +2,56 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical"
+    android:orientation="horizontal"
     android:padding="12dp"
     android:background="?android:attr/selectableItemBackground">
 
-    <TextView
-        android:id="@+id/tvClientName"
-        android:layout_width="wrap_content"
+    <!-- Colonne date + heure -->
+    <LinearLayout
+        android:layout_width="70dp"
         android:layout_height="wrap_content"
-        android:text="Client Name"
-        android:textSize="18sp"
-        android:textStyle="bold"/>
+        android:orientation="vertical"
+        android:gravity="center">
 
-    <TextView
-        android:id="@+id/tvClientAgency"
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/tvDate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="--/--"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+
+        <TextView
+            android:id="@+id/tvTime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="--:--"
+            android:textSize="14sp" />
+    </LinearLayout>
+
+    <!-- Colonne infos client -->
+    <LinearLayout
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Agency"
-        android:textSize="14sp"
-        android:textColor="#555555"/>
+        android:layout_weight="1"
+        android:orientation="vertical"
+        android:paddingLeft="16dp">
+
+        <TextView
+            android:id="@+id/tvClientName"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nom du client"
+            android:textStyle="bold"
+            android:textSize="18sp" />
+
+        <TextView
+            android:id="@+id/tvClientAgency"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Agence"
+            android:textSize="14sp"
+            android:textColor="#555555" />
+    </LinearLayout>
 
 </LinearLayout>

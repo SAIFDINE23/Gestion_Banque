@@ -32,17 +32,31 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientView
     @Override
     public void onBindViewHolder(@NonNull ClientViewHolder holder, int position) {
         Map<String, Object> client = clientList.get(position);
-        holder.tvName.setText((String) client.get("name"));
-        holder.tvAgency.setText((String) client.get("agency"));
 
-        // 🔹 Ajouter un clic pour chaque item
+        String name = client.get("name") != null ? String.valueOf(client.get("name")) : "Nom inconnu";
+        String agency = client.get("agency") != null ? String.valueOf(client.get("agency")) : "Agence inconnue";
+
+        // Lire date/slot (clés depuis appointments)
+        String date = client.get("selectedDate") != null ? String.valueOf(client.get("selectedDate")) : "--/--";
+        String slot = client.get("selectedSlot") != null ? String.valueOf(client.get("selectedSlot")) : "--:--";
+
+        holder.tvName.setText(name);
+        holder.tvAgency.setText(agency);
+        holder.tvDate.setText(date);
+        holder.tvTime.setText(slot);
+
         holder.itemView.setOnClickListener(v -> {
-            String clientId = (String) client.get("id"); // récupère l'id du client
-            Intent intent = new Intent(context, ClientDetailsActivity.class);
-            intent.putExtra("CLIENT_ID", clientId);
-            context.startActivity(intent);
+            String clientId = client.get("id") != null ? String.valueOf(client.get("id")) : null;
+            if (clientId != null) {
+                Intent intent = new Intent(context, ClientDetailsActivity.class);
+                intent.putExtra("CLIENT_ID", clientId);
+                context.startActivity(intent);
+            } else {
+                // Optional: toast ou log si id manquant
+            }
         });
     }
+
 
     @Override
     public int getItemCount() {
@@ -50,12 +64,15 @@ public class ClientAdapter extends RecyclerView.Adapter<ClientAdapter.ClientView
     }
 
     public static class ClientViewHolder extends RecyclerView.ViewHolder {
-        TextView tvName, tvAgency;
+        TextView tvName, tvAgency, tvDate, tvTime;
 
         public ClientViewHolder(@NonNull View itemView) {
             super(itemView);
             tvName = itemView.findViewById(R.id.tvClientName);
             tvAgency = itemView.findViewById(R.id.tvClientAgency);
+            tvDate = itemView.findViewById(R.id.tvDate);
+            tvTime = itemView.findViewById(R.id.tvTime);
         }
     }
+
 }

@@ -63,22 +63,92 @@ public class AdvisorHomeActivity extends AppCompatActivity {
 
     private void loadClients() {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("clients");
+        DatabaseReference rdvRef = FirebaseDatabase.getInstance().getReference("appointments");
+
         ref.orderByChild("myAdvisor").equalTo(currentAdvisorId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
                         clientList.clear();
-                        for (DataSnapshot ds : snapshot.getChildren()) {
-                            Map<String, Object> client = (Map<String, Object>) ds.getValue();
-                            clientList.add(client);
+
+                        if (!snapshot.exists()) {
+                            clientAdapter.notifyDataSetChanged();
+                            return;
                         }
-                        clientAdapter.notifyDataSetChanged();
+
+                        // Pour chaque client récupéré
+                        for (DataSnapshot ds : snapshot.getChildren()) {
+                            // Sécuriser le cast: si pb -> continuer
+                            Object value = ds.getValue();
+                            if (!(value instanceof Map)) {
+                                continue;
+                            }
+                            @SuppressWarnings("unchecked")
+                            Map<String, Object> client = (Map<String, Object>) value;
+
+                            // Valeurs par défaut pour l'affichage du rdv
+                            client.put("selectedDate", "--/--");
+                            client.put("selectedSlot", "--:--");
+
+                            // Ajouter tout de suite le client (permet d'afficher quelque chose vite)
+                            clientList.add(client);
+                            clientAdapter.notifyItemInserted(clientList.size() - 1);
+
+                            // Récupérer l'appointmentId (peut être null)
+                            String appointmentId = null;
+                            if (client.get("appointmentId") != null) {
+                                appointmentId = String.valueOf(client.get("appointmentId"));
+                            } else if (client.get("appointmentID") != null) { // fallback si typo
+                                appointmentId = String.valueOf(client.get("appointmentID"));
+                            }
+
+                            if (appointmentId != null && !appointmentId.isEmpty()) {
+                                // Charger le rdv et mettre à jour l'objet client dans la liste
+                                final int index = clientList.indexOf(client); // position du client ajouté
+                                rdvRef.child(appointmentId)
+                                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                                            @Override
+                                            public void onDataChange(@NonNull DataSnapshot rdvSnap) {
+                                                if (rdvSnap.exists()) {
+                                                    String date = rdvSnap.child("selectedDate").getValue(String.class);
+                                                    String slot = rdvSnap.child("selectedSlot").getValue(String.class);
+
+                                                    // Mettre à jour la map client (gardez les clés cohérentes)
+                                                    client.put("selectedDate", date != null ? date : "--/--");
+                                                    client.put("selectedSlot", slot != null ? slot : "--:--");
+
+                                                    // Notify adapter pour cet item (meilleur perf que notifyDataSetChanged)
+                                                    if (index >= 0 && index < clientList.size()) {
+                                                        clientAdapter.notifyItemChanged(index);
+                                                    } else {
+                                                        clientAdapter.notifyDataSetChanged();
+                                                    }
+                                                } else {
+                                                    // rdv non trouvé -> laisser les valeurs par défaut
+                                                    if (index >= 0 && index < clientList.size()) {
+                                                        clientAdapter.notifyItemChanged(index);
+                                                    }
+                                                }
+                                            }
+
+                                            @Override
+                                            public void onCancelled(@NonNull DatabaseError error) {
+                                                // en cas d'erreur réseau: on peut logguer et garder valeurs par défaut
+                                                if (index >= 0 && index < clientList.size()) {
+                                                    clientAdapter.notifyItemChanged(index);
+                                                }
+                                            }
+                                        });
+                            } // sinon on garde les valeurs par défaut
+                        }
                     }
 
                     @Override
                     public void onCancelled(@NonNull DatabaseError error) {
-                        Toast.makeText(AdvisorHomeActivity.this, "Erreur: " + error.getMessage(), Toast.LENGTH_SHORT).show();
+                        // gérer erreur globale (ex: afficher Toast)
                     }
                 });
     }
+
+
 }
