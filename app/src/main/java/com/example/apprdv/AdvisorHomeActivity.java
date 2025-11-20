@@ -1,6 +1,8 @@
 package com.example.apprdv;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.NonNull;
@@ -38,6 +40,12 @@ public class AdvisorHomeActivity extends AppCompatActivity {
         rvClients.setLayoutManager(new LinearLayoutManager(this));
         clientAdapter = new ClientAdapter(this,clientList);
         rvClients.setAdapter(clientAdapter);
+        Button btnAllClients = findViewById(R.id.btnAllClients);
+        btnAllClients.setOnClickListener(v -> {
+            Intent intent = new Intent(AdvisorHomeActivity.this, AllClientsActivity.class);
+            startActivity(intent);
+        });
+
 
         loadClients();
         loadAdvisorName();
@@ -60,6 +68,7 @@ public class AdvisorHomeActivity extends AppCompatActivity {
             }
         });
     }
+
 
     private void loadClients() {
         DatabaseReference ref = FirebaseDatabase.getInstance().getReference("clients");

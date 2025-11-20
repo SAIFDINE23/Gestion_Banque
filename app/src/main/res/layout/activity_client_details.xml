@@ -32,6 +32,14 @@
             android:text="Agence"
             android:textSize="18sp"
             android:paddingBottom="4dp"/>
+        <TextView
+            android:id="@+id/tvClientAdvisor"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Advisor:"
+            android:textSize="18sp"
+            android:paddingBottom="4dp"/>
+
 
         <TextView
             android:id="@+id/tvClientPhone"

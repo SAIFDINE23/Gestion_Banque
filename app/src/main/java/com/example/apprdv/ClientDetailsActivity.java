@@ -13,7 +13,7 @@ import com.google.firebase.database.ValueEventListener;
 
 public class ClientDetailsActivity extends AppCompatActivity {
 
-    private TextView tvClientFullName, tvClientAgency, tvClientPhone, tvClientAddress, tvClientBirthday,tvClientid;
+    private TextView tvClientFullName, tvClientAgency, tvClientPhone, tvClientAddress, tvClientBirthday,tvClientid,tvClientAdvisor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,6 +26,8 @@ public class ClientDetailsActivity extends AppCompatActivity {
         tvClientAddress = findViewById(R.id.tvClientAddress);
         tvClientBirthday = findViewById(R.id.tvClientBirthday);
         tvClientid = findViewById(R.id.tvClientid);
+        tvClientAdvisor = findViewById(R.id.tvClientAdvisor);
+
 
 
         String clientId = getIntent().getStringExtra("CLIENT_ID");
@@ -46,7 +48,7 @@ public class ClientDetailsActivity extends AppCompatActivity {
                                 String phone = ds.child("teld").getValue(String.class);
                                 String address = ds.child("adress").getValue(String.class);
                                 String id = ds.child("idd").getValue(String.class);
-
+                                String advisorId = ds.child("myAdvisor").getValue(String.class);
 
                                 tvClientFullName.setText(name + " " + surname);
                                 tvClientAgency.setText("Agence: " + agency);
@@ -54,8 +56,32 @@ public class ClientDetailsActivity extends AppCompatActivity {
                                 tvClientAddress.setText("Adresse: " + (address != null ? address : "656 Avenue de Toumaniantz"));
                                 tvClientid.setText("ID: " + (id != null ? id : "sd2601200399"));
 
+                                // 🔹 récupérer le nom de l’advisor depuis son id
+                                if (advisorId != null && !advisorId.isEmpty()) {
+                                    DatabaseReference advisorRef = FirebaseDatabase.getInstance()
+                                            .getReference("advisors").child(advisorId);
+                                    advisorRef.addListenerForSingleValueEvent(new ValueEventListener() {
+                                        @Override
+                                        public void onDataChange(@NonNull DataSnapshot advisorSnap) {
+                                            if (advisorSnap.exists()) {
+                                                String advisorName = advisorSnap.child("name").getValue(String.class);
+                                                tvClientAdvisor.setText("Advisor: " + (advisorName != null ? advisorName : "Non défini"));
+                                            } else {
+                                                tvClientAdvisor.setText("Advisor: Non défini");
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onCancelled(@NonNull DatabaseError error) {
+                                            tvClientAdvisor.setText("Advisor: Non défini");
+                                        }
+                                    });
+                                } else {
+                                    tvClientAdvisor.setText("Advisor: Non défini");
+                                }
                             }
-                        } else {
+                        }
+                        else {
                             Toast.makeText(ClientDetailsActivity.this, "Client introuvable", Toast.LENGTH_SHORT).show();
                         }
                     }
