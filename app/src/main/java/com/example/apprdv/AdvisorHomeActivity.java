@@ -27,8 +27,7 @@ public class AdvisorHomeActivity extends AppCompatActivity {
     private ClientAdapter clientAdapter;
     private List<Map<String, Object>> clientList = new ArrayList<>();
 
-    // Mettre ici l'ID de l'advisor connecté (récupéré depuis login)
-    private String currentAdvisorId = "-OZpTWIz-hSoSGbH_tBp";
+    private String currentAdvisorId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +37,9 @@ public class AdvisorHomeActivity extends AppCompatActivity {
         tvAdvisorName = findViewById(R.id.tvAdvisorName);
         rvClients = findViewById(R.id.rvClients);
         rvClients.setLayoutManager(new LinearLayoutManager(this));
-        clientAdapter = new ClientAdapter(this,clientList);
+        clientAdapter = new ClientAdapter(this, clientList);
         rvClients.setAdapter(clientAdapter);
+
         Button btnAllClients = findViewById(R.id.btnAllClients);
         btnAllClients.setOnClickListener(v -> {
             Intent intent = new Intent(AdvisorHomeActivity.this, AllClientsActivity.class);
@@ -47,8 +47,25 @@ public class AdvisorHomeActivity extends AppCompatActivity {
         });
 
 
-        loadClients();
+
+
+        // ⚡ Récupérer l'ID de l'advisor depuis l'intent
+        currentAdvisorId = getIntent().getStringExtra("advisorId");
+        if (currentAdvisorId == null) {
+            Toast.makeText(this, "Erreur : conseiller introuvable", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        Button btnChangeRequests = findViewById(R.id.btnChangeRequests);
+        btnChangeRequests.setOnClickListener(v -> {
+            Intent intent = new Intent(AdvisorHomeActivity.this, AdvisorRequestsActivity.class);
+            intent.putExtra("advisorId", currentAdvisorId);
+            startActivity(intent);
+        });
+
         loadAdvisorName();
+        loadClients();
     }
 
     private void loadAdvisorName() {
@@ -56,7 +73,7 @@ public class AdvisorHomeActivity extends AppCompatActivity {
         ref.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()) {
+                if (snapshot.exists()) {
                     String name = snapshot.child("name").getValue(String.class);
                     tvAdvisorName.setText("Bienvenue, " + name);
                 }
@@ -69,12 +86,11 @@ public class AdvisorHomeActivity extends AppCompatActivity {
         });
     }
 
-
     private void loadClients() {
-        DatabaseReference ref = FirebaseDatabase.getInstance().getReference("clients");
+        DatabaseReference clientsRef = FirebaseDatabase.getInstance().getReference("clients");
         DatabaseReference rdvRef = FirebaseDatabase.getInstance().getReference("appointments");
 
-        ref.orderByChild("myAdvisor").equalTo(currentAdvisorId)
+        clientsRef.orderByChild("myAdvisor").equalTo(currentAdvisorId)
                 .addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -85,79 +101,48 @@ public class AdvisorHomeActivity extends AppCompatActivity {
                             return;
                         }
 
-                        // Pour chaque client récupéré
                         for (DataSnapshot ds : snapshot.getChildren()) {
-                            // Sécuriser le cast: si pb -> continuer
                             Object value = ds.getValue();
-                            if (!(value instanceof Map)) {
-                                continue;
-                            }
+                            if (!(value instanceof Map)) continue;
                             @SuppressWarnings("unchecked")
                             Map<String, Object> client = (Map<String, Object>) value;
 
-                            // Valeurs par défaut pour l'affichage du rdv
                             client.put("selectedDate", "--/--");
                             client.put("selectedSlot", "--:--");
 
-                            // Ajouter tout de suite le client (permet d'afficher quelque chose vite)
                             clientList.add(client);
                             clientAdapter.notifyItemInserted(clientList.size() - 1);
 
-                            // Récupérer l'appointmentId (peut être null)
-                            String appointmentId = null;
-                            if (client.get("appointmentId") != null) {
-                                appointmentId = String.valueOf(client.get("appointmentId"));
-                            } else if (client.get("appointmentID") != null) { // fallback si typo
-                                appointmentId = String.valueOf(client.get("appointmentID"));
-                            }
+                            String appointmentId = client.get("appointmentId") != null ?
+                                    String.valueOf(client.get("appointmentId")) : null;
 
                             if (appointmentId != null && !appointmentId.isEmpty()) {
-                                // Charger le rdv et mettre à jour l'objet client dans la liste
-                                final int index = clientList.indexOf(client); // position du client ajouté
-                                rdvRef.child(appointmentId)
-                                        .addListenerForSingleValueEvent(new ValueEventListener() {
-                                            @Override
-                                            public void onDataChange(@NonNull DataSnapshot rdvSnap) {
-                                                if (rdvSnap.exists()) {
-                                                    String date = rdvSnap.child("selectedDate").getValue(String.class);
-                                                    String slot = rdvSnap.child("selectedSlot").getValue(String.class);
+                                final int index = clientList.indexOf(client);
+                                rdvRef.child(appointmentId).addListenerForSingleValueEvent(new ValueEventListener() {
+                                    @Override
+                                    public void onDataChange(@NonNull DataSnapshot rdvSnap) {
+                                        if (rdvSnap.exists()) {
+                                            String date = rdvSnap.child("selectedDate").getValue(String.class);
+                                            String slot = rdvSnap.child("selectedSlot").getValue(String.class);
 
-                                                    // Mettre à jour la map client (gardez les clés cohérentes)
-                                                    client.put("selectedDate", date != null ? date : "--/--");
-                                                    client.put("selectedSlot", slot != null ? slot : "--:--");
+                                            client.put("selectedDate", date != null ? date : "--/--");
+                                            client.put("selectedSlot", slot != null ? slot : "--:--");
 
-                                                    // Notify adapter pour cet item (meilleur perf que notifyDataSetChanged)
-                                                    if (index >= 0 && index < clientList.size()) {
-                                                        clientAdapter.notifyItemChanged(index);
-                                                    } else {
-                                                        clientAdapter.notifyDataSetChanged();
-                                                    }
-                                                } else {
-                                                    // rdv non trouvé -> laisser les valeurs par défaut
-                                                    if (index >= 0 && index < clientList.size()) {
-                                                        clientAdapter.notifyItemChanged(index);
-                                                    }
-                                                }
+                                            if (index >= 0 && index < clientList.size()) {
+                                                clientAdapter.notifyItemChanged(index);
                                             }
+                                        }
+                                    }
 
-                                            @Override
-                                            public void onCancelled(@NonNull DatabaseError error) {
-                                                // en cas d'erreur réseau: on peut logguer et garder valeurs par défaut
-                                                if (index >= 0 && index < clientList.size()) {
-                                                    clientAdapter.notifyItemChanged(index);
-                                                }
-                                            }
-                                        });
-                            } // sinon on garde les valeurs par défaut
+                                    @Override
+                                    public void onCancelled(@NonNull DatabaseError error) {}
+                                });
+                            }
                         }
                     }
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
-                        // gérer erreur globale (ex: afficher Toast)
-                    }
+                    public void onCancelled(@NonNull DatabaseError error) {}
                 });
     }
-
-
 }

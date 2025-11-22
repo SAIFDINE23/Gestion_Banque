@@ -65,7 +65,6 @@ public class LoginActivity extends AppCompatActivity {
                     if (firstConnection) {
                         String generatedPassword = generateRandomPassword();
 
-                        // Mise à jour du mot de passe et du flag
                         mDatabase.child(userSnapshot.getKey()).child("password").setValue(generatedPassword);
                         mDatabase.child(userSnapshot.getKey()).child("firstConnection").setValue(false)
                                 .addOnCompleteListener(task -> {
@@ -73,6 +72,14 @@ public class LoginActivity extends AppCompatActivity {
                                         Intent intent = new Intent(LoginActivity.this, ConfirmPasswordActivity.class);
                                         intent.putExtra("password", generatedPassword);
                                         intent.putExtra("role", role);
+
+                                        // ✅ Passer l'ID correct selon le rôle
+                                        if ("advisor".equalsIgnoreCase(role)) {
+                                            intent.putExtra("advisorId", userSnapshot.getKey());
+                                        } else {
+                                            intent.putExtra("clientId", userSnapshot.getKey());
+                                        }
+
                                         startActivity(intent);
                                         finish();
                                     }
@@ -82,6 +89,14 @@ public class LoginActivity extends AppCompatActivity {
                         Intent intent = new Intent(LoginActivity.this, EnterPasswordActivity.class);
                         intent.putExtra("storedPassword", storedPassword);
                         intent.putExtra("role", role);
+
+                        // ✅ Passer l'ID correct selon le rôle
+                        if ("advisor".equalsIgnoreCase(role)) {
+                            intent.putExtra("advisorId", userSnapshot.getKey());
+                        } else {
+                            intent.putExtra("clientId", userSnapshot.getKey());
+                        }
+
                         startActivity(intent);
                         finish();
                     }
@@ -89,6 +104,7 @@ public class LoginActivity extends AppCompatActivity {
                     Toast.makeText(LoginActivity.this, "ID incorrect", Toast.LENGTH_SHORT).show();
                 }
             }
+
 
             @Override
             public void onCancelled(DatabaseError error) {

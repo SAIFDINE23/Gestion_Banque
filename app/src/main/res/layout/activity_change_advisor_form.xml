@@ -1,0 +1,61 @@
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!-- Infos pré-remplies -->
+        <EditText
+            android:id="@+id/etClientName"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:hint="Nom du client" />
+
+        <EditText
+            android:id="@+id/etClientId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:hint="Numéro de compte" />
+
+        <EditText
+            android:id="@+id/etClientAgency"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:hint="Agence" />
+
+        <EditText
+            android:id="@+id/etClientAddress"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:enabled="false"
+            android:hint="Adresse du client" />
+
+        <!-- Champ modifiable : raison -->
+        <EditText
+            android:id="@+id/etReason"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Raison du changement" />
+
+        <!-- Date désirée -->
+        <EditText
+            android:id="@+id/etDesiredDate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Date souhaitée (appuyez)" />
+
+        <Button
+            android:id="@+id/btnSubmitRequest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Envoyer la demande" />
+
+    </LinearLayout>
+</ScrollView>

@@ -23,6 +23,20 @@
         android:textSize="14sp"
         android:padding="16dp"
         android:textColor="@android:color/black" />
+    <Button
+        android:id="@+id/btnChangeAdvisor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Changer mon conseiller"
+        android:layout_margin="12dp" />
+
+    <Button
+        android:id="@+id/btnViewRequests"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Voir ma demande"
+        android:layout_margin="12dp" />
+
 
 
     <!-- ScrollView pour faire défiler les boutons -->

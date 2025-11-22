@@ -12,6 +12,10 @@ public class EnterPasswordActivity extends AppCompatActivity {
 
     private EditText etPassword;
     private Button btnConfirm;
+    private String advisorId;
+    private String clientId;
+
+
     private String storedPassword;
     private String role;
 
@@ -22,6 +26,10 @@ public class EnterPasswordActivity extends AppCompatActivity {
 
         etPassword = findViewById(R.id.etPassword);
         btnConfirm = findViewById(R.id.btnConfirm);
+        advisorId = getIntent().getStringExtra("advisorId");
+        clientId = getIntent().getStringExtra("clientId");
+
+
 
         storedPassword = getIntent().getStringExtra("storedPassword");
         role = getIntent().getStringExtra("role"); // récupéré depuis LoginActivity
@@ -41,12 +49,16 @@ public class EnterPasswordActivity extends AppCompatActivity {
             Intent intent;
             if ("advisor".equalsIgnoreCase(role)) {
                 intent = new Intent(this, AdvisorHomeActivity.class);
+                intent.putExtra("advisorId", advisorId); // si c’est un conseiller
             } else {
                 intent = new Intent(this, ClientHomeActivity.class);
+                intent.putExtra("clientId", clientId); // <-- REENVOYÉ ICI
             }
+
             startActivity(intent);
             finish();
-        } else {
+        }
+        else {
             Toast.makeText(this, "Mot de passe incorrect", Toast.LENGTH_SHORT).show();
         }
     }

@@ -31,6 +31,12 @@
         android:textStyle="italic"
         android:textColor="#666666"
         android:paddingBottom="8dp"/>
+    <Button
+        android:id="@+id/btnChangeRequests"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Voir les demandes de changement de conseiller" />
+
 
     <Button
         android:id="@+id/btnAllClients"

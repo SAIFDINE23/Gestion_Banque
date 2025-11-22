@@ -13,6 +13,18 @@
         android:theme="@style/Theme.AppRDV"
         tools:targetApi="31">
         <activity
+            android:name=".RequestDetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".AdvisorRequestsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".MyRequestActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChangeAdvisorFormActivity"
+            android:exported="false" />
+        <activity
             android:name=".AllClientsActivity"
             android:exported="false" />
         <activity
