@@ -8,6 +8,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="L'attribution d'un nouveau conseiller se fera de manière aléatoire et ne sera effective qu'après validation."
+            android:textColor="#D32F2F"
+            android:textStyle="italic"
+            android:gravity="center"
+            android:textSize="14sp"
+            android:layout_marginBottom="20dp" />
+
         <!-- Infos pré-remplies -->
         <EditText
             android:id="@+id/etClientName"

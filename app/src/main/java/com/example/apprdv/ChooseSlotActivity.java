@@ -28,16 +28,22 @@ public class ChooseSlotActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Cette activité n'a pas de layout setContentView car elle affiche juste une Dialog
+        // Mais pour éviter le crash, on laisse souvent un layout vide ou on gère via Dialog directe
 
         advisorId = getIntent().getStringExtra("advisorId");
         advisorName = getIntent().getStringExtra("advisorName");
-        selectedDate = getIntent().getStringExtra("selectedDate");
+        selectedDate = getIntent().getStringExtra("selectedDate"); // Ici c'est "26/11/2025"
+
+        // 🔴 CORRECTION IMPORTANTE : Formater la date pour Firebase
+        // On transforme "26/11/2025" en "26-11-2025" pour correspondre à la clé de la BD
+        String firebaseDateKey = selectedDate.replace("/", "-");
 
         DatabaseReference availabilityRef = FirebaseDatabase.getInstance()
                 .getReference("advisors")
                 .child(advisorId)
                 .child("availability")
-                .child(selectedDate);
+                .child(firebaseDateKey); // ✅ On utilise la clé avec tirets
 
         availabilityRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -58,6 +64,7 @@ public class ChooseSlotActivity extends AppCompatActivity {
                 }
 
                 if (allHours.isEmpty()) {
+                    // C'est ici que vous tombiez avant car le chemin était faux
                     Toast.makeText(ChooseSlotActivity.this,
                             "Aucune heure définie pour ce jour",
                             Toast.LENGTH_SHORT).show();
@@ -82,7 +89,7 @@ public class ChooseSlotActivity extends AppCompatActivity {
                     };
 
                     AlertDialog.Builder builder = new AlertDialog.Builder(ChooseSlotActivity.this);
-                    builder.setTitle("Choisissez une heure");
+                    builder.setTitle("Choisissez une heure le " + selectedDate);
                     builder.setAdapter(adapter, (dialog, which) -> {
                         String selectedHour = allHours.get(which);
 
@@ -91,21 +98,17 @@ public class ChooseSlotActivity extends AppCompatActivity {
                                     "Cette heure n'est pas disponible",
                                     Toast.LENGTH_SHORT).show();
                         } else {
-                            String fullDateTime = selectedDate + " à " + selectedHour;
-                            Toast.makeText(ChooseSlotActivity.this,
-                                    "Rendez-vous le " + fullDateTime + " avec " + advisorName,
-                                    Toast.LENGTH_LONG).show();
-
-                            // ⚡ Exemple de redirection après choix (si besoin)
+                            // Redirection vers la confirmation
                             Intent intent = new Intent(ChooseSlotActivity.this, ConfirmAppointmentActivity.class);
                             intent.putExtra("advisorName", advisorName);
                             intent.putExtra("advisorId", advisorId);
-                            intent.putExtra("selectedDate", selectedDate);   // ✅ date seule
-                            intent.putExtra("selectedSlot", selectedHour);   // ✅ créneau seul
+                            intent.putExtra("selectedDate", selectedDate);   // On garde le format visuel (/)
+                            intent.putExtra("selectedSlot", selectedHour);
                             startActivity(intent);
-
+                            finish(); // On ferme la dialog activity
                         }
                     });
+                    builder.setOnCancelListener(dialog -> finish()); // Fermer si on annule
                     builder.show();
                 }
             }
